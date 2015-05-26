@@ -7,7 +7,11 @@ public class Game {
 	ArrayList<Card> playerCards = new ArrayList<Card>();
 	ArrayList<Card> dealerCards = new ArrayList<Card>();
 	boolean started = false;
+	boolean gameOver = false;
 	double amount = 1000;
+	double betSize;
+	int total = 0;
+	int dTotal = 0;
 
 	public Game(MainWindow frame) {
 		this.frame = frame;
@@ -26,98 +30,253 @@ public class Game {
 		frame.placeDealerCard(1, getFileName(dealerCards.get(0)));
 		frame.placeDealerCard(2, "b2fv.png");
 
-		setPlayerTotal();
-		checkWinner();
+		updatePlayerTotal();
+		checkForBust();
 	}
 
-	public void deal() {
+	public void dealPlayer() {
 		Card newCard = gameDeck.getRandomCardRemoveToo();
 		playerCards.add(newCard);
-		setPlayerTotal();
-		checkWinner();
+		frame.placePlayerCard(playerCards.size(),
+				getFileName(playerCards.get(playerCards.size()-1)));
+		updatePlayerTotal();
+		checkForBust();
+	}
+
+	public void dealDealer() {
+		Card newCard = gameDeck.getRandomCardRemoveToo();
+		dealerCards.add(newCard);
+		frame.placeDealerCard(dealerCards.size(),
+				getFileName(dealerCards.get(dealerCards.size()-1)));
+		updateDealerTotal();
 	}
 
 	public void stand() {
-		setDealerTotal();
-		int total = Integer.parseInt(frame.totalAmt.getText());
+		updateDealerTotal();
 		frame.placeDealerCard(2, getFileName(dealerCards.get(1)));
-		int dTotal = Integer.parseInt(frame.dTotalAmt.getText());
 		new Thread() {
 			public void run() {
-				if(Integer.parseInt(frame.dTotalAmt.getText()) == 21){
-					a
-				}
-				try {
-					Thread.sleep(1000);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
+				while (!gameOver) {
+					dealDealer();
+					checkForDealerBust();
+
+					try {
+						Thread.sleep(1000);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
 				}
 			}
 		}.start();
 	}
 
+	public void gameOver() {
+		gameOver = true;
+		frame.gameOver();
+		checkWinner();
+	}
+
 	public void checkWinner() {
-		if (Integer.parseInt(frame.totalAmt.getText()) == 21) {
+		if (dTotal > 21 || total > dTotal) {
+			addMoney(betSize);
+		} else if (total > 21 || dTotal > total) {
+			removeMoney(betSize);
+		}
+	}
+
+	public void addMoney(double amt) {
+		amount += amt;
+		frame.amtL.setText(amount + "");
+	}
+
+	public void removeMoney(double amt) {
+		amount -= amt;
+		frame.amtL.setText(amount + "");
+	}
+
+	public void reset() {
+		gameDeck.generateNewDeck();
+		playerCards.clear();
+		dealerCards.clear();
+		betSize = 0;
+		started = false;
+		gameOver = false;
+		total = 0;
+		dTotal = 0;
+	}
+
+	public void checkForDealerBust() {
+		if (dTotal == 21) {
+			frame.infoL.setText("Dealer Got Blackjack");
+			gameOver();
+		} else if (dTotal > 21) {
+			frame.infoL.setText("Dealer Busted");
+			gameOver();
+		} else if (dTotal > total) {
+			frame.infoL.setText("Dealer Won");
+			gameOver();
+		} else if (dTotal == total) {
+			frame.infoL.setText("Push");
+			gameOver();
+		}
+	}
+
+	public void checkForBust() {
+		if (total == 21) {
 			frame.gameOver();
 			frame.infoL.setText("You Got 21!");
-		} else if (Integer.parseInt(frame.totalAmt.getText()) > 21) {
+		} else if (total > 21) {
 			frame.gameOver();
 			frame.infoL.setText("Bust");
 		}
 	}
 
-	public void setPlayerTotal() {
-		int total = 0;
-		for (int i = 0; i < playerCards.size(); i++) {
-			total += playerCards.get(i).getCardValue();
+	public int blackjackVal(Card card) {
+		if (card.getValue() == 1) {
+			return 11;
+		} else if (card.getValue() > 10) {
+			return 10;
+		} else {
+			return card.getValue();
 		}
-		frame.totalAmt.setText("" + total);
 	}
 
-	public void setDealerTotal() {
-		int total = 0;
-		for (int i = 0; i < dealerCards.size(); i++) {
-			total += dealerCards.get(i).getCardValue();
+	public void updatePlayerTotal() {
+		int tempTotal = 0;
+		int aces = 0;
+		for (int i = 0; i < playerCards.size(); i++) {
+			tempTotal += blackjackVal(playerCards.get(i));
+			if (playerCards.get(i).getFaceVal().equalsIgnoreCase("ace")) {
+				aces++;
+				tempTotal -= 11;
+			}
 		}
-		frame.dTotalAmt.setText("" + total);
+		total = tempTotal;
+		if (aces == 0) {
+			frame.totalAmt.setText("" + tempTotal);
+			System.out.println(total);
+		} else if (aces == 1) {
+			if (tempTotal + 11 >= 21) {
+				System.out.println(total);
+				total += 1;//change to when its 21 it will count as 11 not 1
+				System.out.println(total);
+				frame.totalAmt.setText("" + (tempTotal + 1));
+			} else {
+				System.out.println(total);
+				total += 11;
+				System.out.println(total);
+				frame.totalAmt.setText("" + (tempTotal + 11));
+			}
+		} else if (aces == 2) {
+			if (tempTotal + 12 >= 21) {
+				total += 2;
+				frame.totalAmt.setText("" + (tempTotal + 2));
+			} else {
+				total += 12;
+				frame.totalAmt.setText("" + (tempTotal + 12));
+			}
+		} else if (aces == 3) {
+			if (tempTotal + 13 >= 21) {
+				total += 3;
+				frame.totalAmt.setText("" + (tempTotal + 3));
+			} else {
+				total += 13;
+				frame.totalAmt.setText("" + (tempTotal + 13));
+			}
+		} else if (aces == 4) {
+			if (tempTotal + 14 >= 21) {
+				total += 4;
+				frame.totalAmt.setText("" + (tempTotal + 4));
+			} else {
+				total += 14;
+				frame.totalAmt.setText("" + (tempTotal + 14));
+			}
+		}
+	}
+
+	public void updateDealerTotal() {
+		int tempTotal = 0;
+		int aces = 0;
+		for (int i = 0; i < dealerCards.size(); i++) {
+			tempTotal += blackjackVal(dealerCards.get(i));
+			if (dealerCards.get(i).getFaceVal().equalsIgnoreCase("ace")) {
+				aces++;
+				tempTotal -= 11;
+			}
+		}
+		if (aces == 0) {
+			frame.dTotalAmt.setText("" + tempTotal);
+		} else if (aces == 1) {
+			if (tempTotal + 11 >= 21) {
+				dTotal += 1;
+				frame.dTotalAmt.setText("" + tempTotal + 1);
+			} else {
+				dTotal += 11;
+				frame.dTotalAmt.setText("" + tempTotal + 11);
+			}
+		} else if (aces == 2) {
+			if (tempTotal + 12 >= 21) {
+				dTotal += 2;
+				frame.dTotalAmt.setText("" + tempTotal + 2);
+			} else {
+				dTotal += 12;
+				frame.dTotalAmt.setText("" + tempTotal + 12);
+			}
+		} else if (aces == 3) {
+			if (tempTotal + 13 >= 21) {
+				dTotal += 3;
+				frame.dTotalAmt.setText("" + tempTotal + 3);
+			} else {
+				dTotal += 13;
+				frame.dTotalAmt.setText("" + tempTotal + 13);
+			}
+		} else if (aces == 4) {
+			if (tempTotal + 14 >= 21) {
+				dTotal += 4;
+				frame.dTotalAmt.setText("" + tempTotal + 4);
+			} else {
+				dTotal += 14;
+				frame.dTotalAmt.setText("" + tempTotal + 14);
+			}
+		}
 	}
 
 	public String getFileName(Card card) {
 		String suit = card.getSuit().substring(0, 1).toLowerCase();
-		String number = getCardLetter(card);
-		// System.out.println(number + "   " + suit);
+		String number = faceValToNum(card);
 		return suit + number + ".png";
 	}
 
-	public String getCardLetter(Card card) {
-		if (card.getCardNameIgnoreSuit().equalsIgnoreCase("ace")) {
+	public String faceValToNum(Card card) {
+		if (card.getFaceVal().equalsIgnoreCase("ace")) {
 			return "1";
-		} else if (card.getCardNameIgnoreSuit().equalsIgnoreCase("two")) {
+		} else if (card.getFaceVal().equalsIgnoreCase("two")) {
 			return "2";
-		} else if (card.getCardNameIgnoreSuit().equalsIgnoreCase("three")) {
+		} else if (card.getFaceVal().equalsIgnoreCase("three")) {
 			return "3";
-		} else if (card.getCardNameIgnoreSuit().equalsIgnoreCase("four")) {
+		} else if (card.getFaceVal().equalsIgnoreCase("four")) {
 			return "4";
-		} else if (card.getCardNameIgnoreSuit().equalsIgnoreCase("five")) {
+		} else if (card.getFaceVal().equalsIgnoreCase("five")) {
 			return "5";
-		} else if (card.getCardNameIgnoreSuit().equalsIgnoreCase("six")) {
+		} else if (card.getFaceVal().equalsIgnoreCase("six")) {
 			return "6";
-		} else if (card.getCardNameIgnoreSuit().equalsIgnoreCase("seven")) {
+		} else if (card.getFaceVal().equalsIgnoreCase("seven")) {
 			return "7";
-		} else if (card.getCardNameIgnoreSuit().equalsIgnoreCase("eight")) {
+		} else if (card.getFaceVal().equalsIgnoreCase("eight")) {
 			return "8";
-		} else if (card.getCardNameIgnoreSuit().equalsIgnoreCase("nine")) {
+		} else if (card.getFaceVal().equalsIgnoreCase("nine")) {
 			return "9";
-		} else if (card.getCardNameIgnoreSuit().equalsIgnoreCase("ten")) {
+		} else if (card.getFaceVal().equalsIgnoreCase("ten")) {
 			return "10";
-		} else if (card.getCardNameIgnoreSuit().equalsIgnoreCase("jack")) {
+		} else if (card.getFaceVal().equalsIgnoreCase("jack")) {
 			return "j";
-		} else if (card.getCardNameIgnoreSuit().equalsIgnoreCase("queen")) {
+		} else if (card.getFaceVal().equalsIgnoreCase("queen")) {
 			return "q";
-		} else if (card.getCardNameIgnoreSuit().equalsIgnoreCase("king")) {
+		} else if (card.getFaceVal().equalsIgnoreCase("king")) {
 			return "k";
 		} else {
 			return null;
 		}
 	}
+
 }

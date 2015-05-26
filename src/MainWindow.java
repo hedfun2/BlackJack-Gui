@@ -91,6 +91,29 @@ public class MainWindow extends JFrame implements ActionListener {
 		resetB.setEnabled(true);
 	}
 
+	public void reset(){
+		hitB.setEnabled(true);
+		standB.setEnabled(true);
+		betB.setEnabled(true);
+		resetB.setEnabled(false);
+		infoL.setText("Place bet to start");
+		dTotalAmt.setText("");
+		totalAmt.setText("");
+		betTF.setEnabled(true);
+		slot1.setIcon(null);
+		slot2.setIcon(null);
+		slot3.setIcon(null);
+		slot4.setIcon(null);
+		slot5.setIcon(null);
+		slot6.setIcon(null);
+		dSlot6.setIcon(null);
+		dSlot5.setIcon(null);
+		dSlot4.setIcon(null);
+		dSlot3.setIcon(null);
+		dSlot2.setIcon(null);
+		dSlot1.setIcon(null);
+	}
+	
 	public boolean isRealBet() {
 		try {
 			Double.parseDouble(betTF.getText());
@@ -111,15 +134,19 @@ public class MainWindow extends JFrame implements ActionListener {
 				infoL.setText("Not Enough Money");
 				return;
 			}
-			game.amount -= Double.parseDouble(betTF.getText());
+			game.betSize = Double.parseDouble(betTF.getText());
+			game.amount -= game.betSize;
 			amtL.setText(game.amount + "");
 			betTF.setEnabled(false);
 			infoL.setText("");
 			game.firstDeal();
 		} else if (e.getSource() == hitB) {
-
+			game.dealPlayer();
 		} else if (e.getSource() == standB) {
 			game.stand();
+		} else if(e.getSource() == resetB){
+			reset();
+			game.reset();
 		}
 
 	}
