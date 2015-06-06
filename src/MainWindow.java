@@ -92,8 +92,8 @@ public class MainWindow extends JFrame implements ActionListener {
 	}
 
 	public void reset(){
-		hitB.setEnabled(true);
-		standB.setEnabled(true);
+		hitB.setEnabled(false);
+		standB.setEnabled(false);
 		betB.setEnabled(true);
 		resetB.setEnabled(false);
 		infoL.setText("Place bet to start");
@@ -134,6 +134,9 @@ public class MainWindow extends JFrame implements ActionListener {
 				infoL.setText("Not Enough Money");
 				return;
 			}
+			hitB.setEnabled(true);
+			standB.setEnabled(true);
+			betB.setEnabled(false);
 			game.betSize = Double.parseDouble(betTF.getText());
 			game.amount -= game.betSize;
 			amtL.setText(game.amount + "");
@@ -187,6 +190,9 @@ public class MainWindow extends JFrame implements ActionListener {
 		dTotalAmt = new JLabel("");
 		resetB.setEnabled(false);
 
+		hitB.setEnabled(false);
+		standB.setEnabled(false);
+		
 		hitB.setBorder(null);
 		standB.setBorder(null);
 		betTF.setBorder(null);

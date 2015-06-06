@@ -6,7 +6,6 @@ public class Game {
 	Deck gameDeck;
 	ArrayList<Card> playerCards = new ArrayList<Card>();
 	ArrayList<Card> dealerCards = new ArrayList<Card>();
-	boolean started = false;
 	boolean gameOver = false;
 	double amount = 1000;
 	double betSize;
@@ -31,6 +30,7 @@ public class Game {
 		frame.placeDealerCard(2, "b2fv.png");
 
 		updatePlayerTotal();
+		updateDealerTotal();
 		checkForBust();
 	}
 
@@ -38,7 +38,7 @@ public class Game {
 		Card newCard = gameDeck.getRandomCardRemoveToo();
 		playerCards.add(newCard);
 		frame.placePlayerCard(playerCards.size(),
-				getFileName(playerCards.get(playerCards.size()-1)));
+				getFileName(playerCards.get(playerCards.size() - 1)));
 		updatePlayerTotal();
 		checkForBust();
 	}
@@ -47,19 +47,21 @@ public class Game {
 		Card newCard = gameDeck.getRandomCardRemoveToo();
 		dealerCards.add(newCard);
 		frame.placeDealerCard(dealerCards.size(),
-				getFileName(dealerCards.get(dealerCards.size()-1)));
+				getFileName(dealerCards.get(dealerCards.size() - 1)));
 		updateDealerTotal();
 	}
 
 	public void stand() {
-		updateDealerTotal();
+		frame.dTotalAmt.setText("" + dTotal);
 		frame.placeDealerCard(2, getFileName(dealerCards.get(1)));
+		checkForDealerBust();
 		new Thread() {
 			public void run() {
 				while (!gameOver) {
+					System.out.println(!gameOver);
 					dealDealer();
+					frame.dTotalAmt.setText("" + dTotal);
 					checkForDealerBust();
-
 					try {
 						Thread.sleep(1000);
 					} catch (InterruptedException e) {
@@ -77,10 +79,8 @@ public class Game {
 	}
 
 	public void checkWinner() {
-		if (dTotal > 21 || total > dTotal) {
-			addMoney(betSize);
-		} else if (total > 21 || dTotal > total) {
-			removeMoney(betSize);
+		if (dTotal > 21 || (total > dTotal && total <= 21)) {
+			addMoney(betSize * 2);
 		}
 	}
 
@@ -99,7 +99,6 @@ public class Game {
 		playerCards.clear();
 		dealerCards.clear();
 		betSize = 0;
-		started = false;
 		gameOver = false;
 		total = 0;
 		dTotal = 0;
@@ -115,7 +114,7 @@ public class Game {
 		} else if (dTotal > total) {
 			frame.infoL.setText("Dealer Won");
 			gameOver();
-		} else if (dTotal == total) {
+		} else if (dTotal == total && dTotal >= 16) {
 			frame.infoL.setText("Push");
 			gameOver();
 		}
@@ -123,21 +122,21 @@ public class Game {
 
 	public void checkForBust() {
 		if (total == 21) {
-			frame.gameOver();
+			gameOver();
 			frame.infoL.setText("You Got 21!");
 		} else if (total > 21) {
-			frame.gameOver();
+			gameOver();
 			frame.infoL.setText("Bust");
 		}
 	}
 
 	public int blackjackVal(Card card) {
-		if (card.getValue() == 1) {
+		if (card.getPointVal() == 1) {
 			return 11;
-		} else if (card.getValue() > 10) {
+		} else if (card.getPointVal() > 10) {
 			return 10;
 		} else {
-			return card.getValue();
+			return card.getPointVal();
 		}
 	}
 
@@ -152,46 +151,30 @@ public class Game {
 			}
 		}
 		total = tempTotal;
-		if (aces == 0) {
-			frame.totalAmt.setText("" + tempTotal);
-			System.out.println(total);
-		} else if (aces == 1) {
-			if (tempTotal + 11 >= 21) {
-				System.out.println(total);
-				total += 1;//change to when its 21 it will count as 11 not 1
-				System.out.println(total);
-				frame.totalAmt.setText("" + (tempTotal + 1));
-			} else {
-				System.out.println(total);
+		if (aces == 1) {
+			if (tempTotal + 11 > 21)
+				total += 1;
+			else if (tempTotal + 11 == 21)
 				total += 11;
-				System.out.println(total);
-				frame.totalAmt.setText("" + (tempTotal + 11));
-			}
+			else
+				total += 11;
 		} else if (aces == 2) {
-			if (tempTotal + 12 >= 21) {
+			if (tempTotal + 12 >= 21)
 				total += 2;
-				frame.totalAmt.setText("" + (tempTotal + 2));
-			} else {
+			else
 				total += 12;
-				frame.totalAmt.setText("" + (tempTotal + 12));
-			}
 		} else if (aces == 3) {
-			if (tempTotal + 13 >= 21) {
+			if (tempTotal + 13 >= 21)
 				total += 3;
-				frame.totalAmt.setText("" + (tempTotal + 3));
-			} else {
+			else
 				total += 13;
-				frame.totalAmt.setText("" + (tempTotal + 13));
-			}
 		} else if (aces == 4) {
-			if (tempTotal + 14 >= 21) {
+			if (tempTotal + 14 >= 21)
 				total += 4;
-				frame.totalAmt.setText("" + (tempTotal + 4));
-			} else {
+			else
 				total += 14;
-				frame.totalAmt.setText("" + (tempTotal + 14));
-			}
 		}
+		frame.totalAmt.setText("" + total);
 	}
 
 	public void updateDealerTotal() {
@@ -204,41 +187,31 @@ public class Game {
 				tempTotal -= 11;
 			}
 		}
-		if (aces == 0) {
-			frame.dTotalAmt.setText("" + tempTotal);
-		} else if (aces == 1) {
-			if (tempTotal + 11 >= 21) {
+		dTotal = tempTotal;
+		if (aces == 1) {
+			if (tempTotal + 11 > 21) 
 				dTotal += 1;
-				frame.dTotalAmt.setText("" + tempTotal + 1);
-			} else {
+			 else if (tempTotal + 11 == 21) 
 				dTotal += 11;
-				frame.dTotalAmt.setText("" + tempTotal + 11);
-			}
+			 else 
+				dTotal += 11;
 		} else if (aces == 2) {
-			if (tempTotal + 12 >= 21) {
+			if (tempTotal + 12 >= 21) 
 				dTotal += 2;
-				frame.dTotalAmt.setText("" + tempTotal + 2);
-			} else {
+			 else 
 				dTotal += 12;
-				frame.dTotalAmt.setText("" + tempTotal + 12);
-			}
 		} else if (aces == 3) {
-			if (tempTotal + 13 >= 21) {
+			if (tempTotal + 13 >= 21) 
 				dTotal += 3;
-				frame.dTotalAmt.setText("" + tempTotal + 3);
-			} else {
+			else 
 				dTotal += 13;
-				frame.dTotalAmt.setText("" + tempTotal + 13);
-			}
 		} else if (aces == 4) {
-			if (tempTotal + 14 >= 21) {
+			if (tempTotal + 14 >= 21) 
 				dTotal += 4;
-				frame.dTotalAmt.setText("" + tempTotal + 4);
-			} else {
+			 else 
 				dTotal += 14;
-				frame.dTotalAmt.setText("" + tempTotal + 14);
-			}
 		}
+		
 	}
 
 	public String getFileName(Card card) {

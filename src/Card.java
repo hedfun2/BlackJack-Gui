@@ -1,6 +1,6 @@
 public class Card {
 
-	private int value;
+	private int pointVal;
 	private String suit;
 	private String faceVal;
 
@@ -12,33 +12,33 @@ public class Card {
 
 	private void setValue(){
 		if(faceVal.equalsIgnoreCase("ace")){
-			value = 1;
+			pointVal = 1;
 		}else if(faceVal.equalsIgnoreCase("two")){
-			value = 2;
+			pointVal = 2;
 		}else if(faceVal.equalsIgnoreCase("three")){
-			value = 3;
+			pointVal = 3;
 		}else if(faceVal.equalsIgnoreCase("four")){
-			value = 4;
+			pointVal = 4;
 		}else if(faceVal.equalsIgnoreCase("five")){
-			value = 5;
+			pointVal = 5;
 		}else if(faceVal.equalsIgnoreCase("six")){
-			value = 6;
+			pointVal = 6;
 		}else if(faceVal.equalsIgnoreCase("seven")){
-			value = 7;
+			pointVal = 7;
 		}else if(faceVal.equalsIgnoreCase("eight")){
-			value = 8;
+			pointVal = 8;
 		}else if(faceVal.equalsIgnoreCase("nine")){
-			value = 9;
+			pointVal = 9;
 		}else if(faceVal.equalsIgnoreCase("ten")){
-			value = 10;
+			pointVal = 10;
 		}else if(faceVal.equalsIgnoreCase("jack")){
-			value = 11;
+			pointVal = 11;
 		}else if(faceVal.equalsIgnoreCase("queen")){
-			value = 12;
+			pointVal = 12;
 		}else if(faceVal.equalsIgnoreCase("king")){
-			value = 13;
+			pointVal = 13;
 		}else{
-			value = 0;
+			pointVal = 0;
 		}
 	}
 	
@@ -46,12 +46,12 @@ public class Card {
 		return faceVal + " of " + suit;
 	}
 
-	public int getValue() {
-		return value;
+	public int getPointVal() {
+		return pointVal;
 	}
 
-	public void setValue(int value) {
-		this.value = value;
+	public void setPointVal(int pointVal) {
+		this.pointVal = pointVal;
 	}
 
 	public String getSuit() {

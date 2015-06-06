@@ -57,9 +57,19 @@ public class Deck {
 		}
 		return null;
 	}
-
+	
 	public void shuffle() {
-		Collections.shuffle(cards);
+		ArrayList<Card> shuffledDeck = new ArrayList<Card>();
+		for (int i = 0; i < cards.size(); i++) {
+			int rdmIndex = (int) (Math.random() * cards.size());
+			shuffledDeck.add(cards.get(rdmIndex));
+			cards.remove(rdmIndex);
+		}
+		
+		for (int k = 0; k < shuffledDeck.size(); k++) {
+			cards.add(shuffledDeck.get(k));
+		}
+
 	}
 
 	public void removeCard(String faceVal, String suit) {
@@ -99,9 +109,9 @@ public class Deck {
 		}
 		return temp;
 	}
-	
-	public void printDeck(){
-		for(Card card : cards){
+
+	public void printDeck() {
+		for (Card card : cards) {
 			System.out.println(card);
 		}
 	}
