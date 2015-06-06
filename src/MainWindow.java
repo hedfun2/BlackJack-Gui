@@ -4,6 +4,7 @@ import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.net.URL;
 
 import javax.swing.GroupLayout;
 import javax.swing.ImageIcon;
@@ -53,34 +54,36 @@ public class MainWindow extends JFrame implements ActionListener {
 	}
 
 	public void placePlayerCard(int slot, String fileName) {
+		URL url = MainWindow.class.getResource(fileName);
 		if (slot == 1) {
-			slot1.setIcon(new ImageIcon("images/" + fileName));
+			slot1.setIcon(new ImageIcon(url));
 		} else if (slot == 2) {
-			slot2.setIcon(new ImageIcon("images/" + fileName));
+			slot2.setIcon(new ImageIcon(url));
 		} else if (slot == 3) {
-			slot3.setIcon(new ImageIcon("images/" + fileName));
+			slot3.setIcon(new ImageIcon(url));
 		} else if (slot == 4) {
-			slot4.setIcon(new ImageIcon("images/" + fileName));
+			slot4.setIcon(new ImageIcon(url));
 		} else if (slot == 5) {
-			slot5.setIcon(new ImageIcon("images/" + fileName));
+			slot5.setIcon(new ImageIcon(url));
 		} else if (slot == 6) {
-			slot6.setIcon(new ImageIcon("images/" + fileName));
+			slot6.setIcon(new ImageIcon(url));
 		}
 	}
 
 	public void placeDealerCard(int slot, String fileName) {
+		URL url = MainWindow.class.getResource(fileName);
 		if (slot == 1) {
-			dSlot1.setIcon(new ImageIcon("images/" + fileName));
+			dSlot1.setIcon(new ImageIcon(url));
 		} else if (slot == 2) {
-			dSlot2.setIcon(new ImageIcon("images/" + fileName));
+			dSlot2.setIcon(new ImageIcon(url));
 		} else if (slot == 3) {
-			dSlot3.setIcon(new ImageIcon("images/" + fileName));
+			dSlot3.setIcon(new ImageIcon(url));
 		} else if (slot == 4) {
-			dSlot4.setIcon(new ImageIcon("images/" + fileName));
+			dSlot4.setIcon(new ImageIcon(url));
 		} else if (slot == 5) {
-			dSlot5.setIcon(new ImageIcon("images/" + fileName));
+			dSlot5.setIcon(new ImageIcon(url));
 		} else if (slot == 6) {
-			dSlot6.setIcon(new ImageIcon("images/" + fileName));
+			dSlot6.setIcon(new ImageIcon(url));
 		}
 	}
 
