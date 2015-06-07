@@ -58,14 +58,16 @@ public class Game {
 		new Thread() {
 			public void run() {
 				while (!gameOver) {
-					System.out.println(!gameOver);
+					checkForDealerBust();
 					dealDealer();
 					frame.dTotalAmt.setText("" + dTotal);
 					checkForDealerBust();
-					try {
-						Thread.sleep(1000);
-					} catch (InterruptedException e) {
-						e.printStackTrace();
+					if (!gameOver) {
+						try {
+							Thread.sleep(1000);
+						} catch (InterruptedException e) {
+							e.printStackTrace();
+						}
 					}
 				}
 			}
@@ -81,6 +83,8 @@ public class Game {
 	public void checkWinner() {
 		if (dTotal > 21 || (total > dTotal && total <= 21)) {
 			addMoney(betSize * 2);
+		} else if (dTotal == total) {
+			addMoney(betSize);
 		}
 	}
 
@@ -106,17 +110,17 @@ public class Game {
 
 	public void checkForDealerBust() {
 		if (dTotal == 21) {
+			gameOver();
 			frame.infoL.setText("Dealer Got Blackjack");
-			gameOver();
 		} else if (dTotal > 21) {
+			gameOver();
 			frame.infoL.setText("Dealer Busted");
-			gameOver();
 		} else if (dTotal > total) {
+			gameOver();
 			frame.infoL.setText("Dealer Won");
-			gameOver();
 		} else if (dTotal == total && dTotal >= 16) {
-			frame.infoL.setText("Push");
 			gameOver();
+			frame.infoL.setText("Push");
 		}
 	}
 
@@ -189,29 +193,29 @@ public class Game {
 		}
 		dTotal = tempTotal;
 		if (aces == 1) {
-			if (tempTotal + 11 > 21) 
+			if (tempTotal + 11 > 21)
 				dTotal += 1;
-			 else if (tempTotal + 11 == 21) 
+			else if (tempTotal + 11 == 21)
 				dTotal += 11;
-			 else 
+			else
 				dTotal += 11;
 		} else if (aces == 2) {
-			if (tempTotal + 12 >= 21) 
+			if (tempTotal + 12 >= 21)
 				dTotal += 2;
-			 else 
+			else
 				dTotal += 12;
 		} else if (aces == 3) {
-			if (tempTotal + 13 >= 21) 
+			if (tempTotal + 13 >= 21)
 				dTotal += 3;
-			else 
+			else
 				dTotal += 13;
 		} else if (aces == 4) {
-			if (tempTotal + 14 >= 21) 
+			if (tempTotal + 14 >= 21)
 				dTotal += 4;
-			 else 
+			else
 				dTotal += 14;
 		}
-		
+
 	}
 
 	public String getFileName(Card card) {
